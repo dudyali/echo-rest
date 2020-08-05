@@ -3,14 +3,16 @@ package models
 import (
 	"net/http"
 
+	validator "github.com/go-playground/validator/v10"
+
 	"github.com/dudyali/echo-rest/db"
 )
 
 type Pegawai struct {
 	Id      int    `json:"id"`
-	Nama    string `json:"nama"`
-	Alamat  string `json:"alamat"`
-	Telepon string `json:"telepon"`
+	Nama    string `json:"nama" validate:"required"`
+	Alamat  string `json:"alamat" validate:"required"`
+	Telepon string `json:"telepon" validate:"required"`
 }
 
 func FetchAllPegawai() (Response, error) {
@@ -47,6 +49,19 @@ func FetchAllPegawai() (Response, error) {
 
 func StorePegawai(nama string, alamat string, telepon string) (Response, error) {
 	var res Response
+
+	v := validator.New()
+
+	peg := Pegawai{
+		Nama:    nama,
+		Alamat:  alamat,
+		Telepon: telepon,
+	}
+
+	err := v.Struct(peg)
+	if err != nil {
+		return res, err
+	}
 
 	con := db.CreateCon()
 
